@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indigo Alive — App Prototype v3</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#1a2f5e;--indigo-mid:#2d4a8a;--indigo-light:#4a72c4;
+  --indigo-pale:#e8eef8;--indigo-wash:#f0f4fb;
+  --white:#ffffff;--ink:#111827;--muted:#6b7280;--border:#d1d9ef;
+  --green:#1d9e75;--amber:#f59e0b;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#070c18;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem 1rem;
+}
+.top-label{text-align:center;margin-bottom:1.5rem;}
+.top-label h1{font-family:'DM Serif Display',serif;font-style:italic;font-size:1.8rem;color:#fff;margin-bottom:3px;}
+.top-label p{font-size:12px;color:rgba(255,255,255,0.3);}
+
+.step-nav{display:flex;gap:6px;margin-bottom:1.25rem;justify-content:center;flex-wrap:wrap;}
+.step-dot{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;
+  background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);
+  cursor:pointer;transition:all 0.2s;font-size:11px;color:rgba(255,255,255,0.3);
+}
+.step-dot:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);}
+.step-dot.active{background:var(--indigo);border-color:var(--indigo-light);color:#fff;}
+
+.phone-frame{
+  width:390px;height:844px;background:#0d0d0d;border-radius:54px;padding:12px;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.07),0 40px 80px rgba(0,0,0,0.7),0 0 60px rgba(74,114,196,0.08);
+  position:relative;
+}
+.phone-frame::before{
+  content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:126px;height:37px;background:#0d0d0d;border-radius:0 0 22px 22px;z-index:200;
+}
+.phone-inner{width:100%;height:100%;border-radius:44px;overflow:hidden;position:relative;background:var(--indigo-wash);}
+
+.screen{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;overflow:hidden;background:var(--white);}
+.screen.active{display:flex;animation:sIn 0.28s ease;}
+@keyframes sIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+
+.sb{display:flex;justify-content:space-between;align-items:center;padding:48px 24px 8px;flex-shrink:0;z-index:10;}
+.sb-time{font-size:15px;font-weight:600;}
+.nb{display:flex;align-items:center;padding:8px 20px 10px;flex-shrink:0;gap:8px;}
+.nb-back{width:34px;height:34px;border-radius:10px;background:var(--indigo-pale);color:var(--indigo);border:none;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;}
+.nb-title{flex:1;text-align:center;font-size:15px;font-weight:500;color:var(--ink);}
+.nb-space{width:34px;}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+.hi{height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hi-bar{width:120px;height:4px;border-radius:4px;}
+.btn{width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:6px;border:none;}
+.btn-dark{background:var(--indigo);color:#fff;}
+.btn-dark:hover{background:var(--indigo-mid);}
+.btn-dark:active{transform:scale(0.98);}
+.btn-white{background:#fff;color:var(--indigo);}
+.btn-outline{background:transparent;color:rgba(255,255,255,0.8);border:1.5px solid rgba(255,255,255,0.22);}
+.card{background:var(--white);border-radius:16px;padding:16px;}
+.sec-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;}
+.divider{height:0.5px;background:var(--border);margin:12px 0;}
+.badge{display:inline-block;font-size:10px;padding:2px 9px;border-radius:20px;}
+.badge-easy{background:var(--green);color:#fff;}
+.badge-med{background:var(--amber);color:#fff;}
+.badge-hard{background:#9a3412;color:#fff;}
+
+/* ══ SCREEN 1 — WELCOME ══ */
+#s1{background:var(--indigo);}
+.s1-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.s1-c1{position:absolute;top:-80px;right:-80px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(74,114,196,0.25) 0%,transparent 65%);}
+.s1-c2{position:absolute;bottom:-60px;left:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(29,158,117,0.12) 0%,transparent 65%);}
+.s1-lang{position:absolute;top:108px;right:22px;z-index:20;font-size:11px;background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.15);border-radius:20px;padding:4px 12px;cursor:pointer;display:flex;gap:6px;align-items:center;}
+.s1-lo{color:rgba(255,255,255,0.45);transition:color 0.15s;}
+.s1-lo.active{color:#fff;font-weight:500;}
+.s1-ls{color:rgba(255,255,255,0.2);}
+.s1-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem 2rem;position:relative;z-index:5;}
+.s1-pw{width:130px;height:130px;margin-bottom:1.75rem;opacity:0.12;}
+.s1-wm{font-family:'DM Serif Display',serif;font-style:italic;font-size:44px;color:#fff;line-height:1;margin-bottom:14px;text-align:center;}
+.s1-three{display:flex;gap:0;margin-bottom:2.25rem;}
+.s1-ti{font-size:13px;color:rgba(255,255,255,0.55);text-align:center;}
+.s1-ti strong{display:block;font-size:16px;color:#fff;font-weight:500;margin-bottom:1px;}
+.s1-ts{color:rgba(255,255,255,0.2);font-size:22px;margin:0 14px;line-height:1.6;}
+.s1-footer{padding:0 1.75rem 2rem;display:flex;flex-direction:column;gap:10px;position:relative;z-index:5;}
+
+/* ══ SCREEN 2 — PRODUCT PICKER ══ */
+#s2{background:var(--indigo-wash);}
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 20px 20px;}
+.prod-card{
+  border-radius:18px;border:2px solid transparent;background:var(--white);
+  cursor:pointer;transition:all 0.2s;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;padding:16px 12px 14px;
+}
+.prod-card.sel{border-color:var(--indigo);background:var(--indigo-wash);}
+.prod-svg-wrap{width:100%;height:100px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.prod-name{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px;text-align:center;}
+.prod-price{font-size:12px;color:var(--indigo);font-weight:600;}
+.prod-desc{font-size:10px;color:var(--muted);text-align:center;margin-top:3px;line-height:1.3;}
+.prod-next{padding:14px 20px 14px;flex-shrink:0;}
+
+/* ══ SCREEN 3 — PATTERN PICKER ══ */
+#s3{background:var(--indigo-wash);}
+.s3-preview{
+  margin:0 20px 12px;border-radius:20px;background:var(--indigo);
+  height:210px;flex-shrink:0;position:relative;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+}
+.s3-product-preview{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.s3-bottom-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(10,18,40,0.85));
+  padding:28px 16px 14px;text-align:center;
+}
+.s3-bottom-label h4{font-size:14px;font-weight:500;color:#fff;margin-bottom:4px;}
+.s3-thumbs-wrap{padding:0 20px 6px;flex-shrink:0;}
+.s3-thumbs{display:flex;gap:10px;overflow-x:auto;padding-bottom:20px;}
+.s3-thumbs::-webkit-scrollbar{display:none;}
+.s3-ti{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0;}
+.s3-thumb{width:58px;height:58px;border-radius:14px;background:var(--indigo);border:2px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color 0.2s;}
+.s3-thumb.sel{border-color:var(--indigo-light);}
+.s3-tn{font-size:9px;color:var(--muted);white-space:nowrap;}
+.s3-sliders{padding:0 20px;display:flex;flex-direction:column;gap:14px;flex-shrink:0;}
+.sl-row{display:flex;flex-direction:column;gap:8px;}
+.sl-hd{display:flex;justify-content:space-between;font-size:13px;}
+.sl-hd span:first-child{font-weight:500;color:var(--ink);}
+.sl-hd span:last-child{color:var(--indigo-light);font-weight:500;font-size:12px;}
+.sl-track{height:4px;background:var(--border);border-radius:4px;position:relative;cursor:pointer;}
+.sl-fill{height:100%;border-radius:4px;background:var(--indigo-light);pointer-events:none;}
+.sl-handle{width:20px;height:20px;border-radius:50%;background:var(--indigo);border:2.5px solid #fff;position:absolute;top:50%;transform:translateY(-50%);box-shadow:0 2px 8px rgba(0,0,0,0.2);pointer-events:none;}
+.s3-book{padding:12px 20px 12px;flex-shrink:0;}
+
+/* ══ SCREEN 4 — ARTISAN SELECTION ══ */
+#s4{background:var(--indigo-wash);}
+.artisan-list{display:flex;flex-direction:column;gap:12px;padding:0 20px 20px;}
+.artisan-card{
+  background:var(--white);border-radius:18px;padding:16px;
+  border:2px solid transparent;cursor:pointer;transition:all 0.2s;
+  display:flex;gap:14px;align-items:flex-start;
+}
+.artisan-card.sel{border-color:var(--indigo);}
+.artisan-avatar{
+  width:60px;height:60px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+.artisan-info{flex:1;}
+.artisan-name{font-family:'DM Serif Display',serif;font-size:16px;color:var(--ink);margin-bottom:2px;}
+.artisan-role{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.artisan-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.artisan-pill{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--indigo-pale);color:var(--indigo);}
+.artisan-bottom{display:flex;justify-content:space-between;align-items:center;}
+.artisan-sessions{font-size:11px;color:var(--muted);}
+.artisan-rating{font-size:12px;color:var(--amber);font-weight:500;}
+
+.dates-section{padding:0 20px 8px;flex-shrink:0;}
+.dates-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+.dates-scroll::-webkit-scrollbar{display:none;}
+.date-chip{flex-shrink:0;padding:9px 13px;border-radius:12px;border:1px solid var(--border);cursor:pointer;text-align:center;transition:all 0.15s;min-width:72px;}
+.date-chip.sel{background:var(--indigo);border-color:var(--indigo);}
+.dc-day{font-size:9px;color:var(--muted);margin-bottom:1px;}
+.date-chip.sel .dc-day{color:rgba(255,255,255,0.6);}
+.dc-num{font-size:15px;font-weight:600;color:var(--ink);}
+.date-chip.sel .dc-num{color:#fff;}
+.dc-time{font-size:10px;color:var(--muted);margin-top:2px;}
+.date-chip.sel .dc-time{color:rgba(255,255,255,0.6);}
+.s4-sticky{padding:12px 20px 12px;flex-shrink:0;border-top:0.5px solid var(--border);background:var(--indigo-wash);}
+
+/* ══ SCREEN 5 — BOOKING ══ */
+#s5{background:var(--indigo-wash);}
+.s5-prog{display:flex;gap:6px;padding:6px 20px 14px;flex-shrink:0;}
+.s5-pd{flex:1;height:4px;border-radius:4px;background:var(--border);transition:background 0.3s;}
+.s5-pd.done{background:var(--indigo);}
+.s5-content{display:flex;flex-direction:column;gap:12px;padding:0 20px 4px;}
+.summary-thumb{width:50px;height:50px;border-radius:10px;background:var(--indigo);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;}
+.s5-info h4{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:3px;}
+.s5-info p{font-size:12px;color:var(--muted);line-height:1.5;}
+.counter{display:flex;align-items:center;gap:16px;}
+.cnt-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--white);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:inherit;transition:background 0.15s;}
+.cnt-btn:hover{background:var(--indigo-pale);}
+.cnt-val{font-size:16px;font-weight:500;color:var(--ink);min-width:60px;text-align:center;}
+.lang-row{display:flex;gap:8px;}
+.lang-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:var(--white);color:var(--muted);font-family:inherit;}
+.lang-btn.sel{background:var(--indigo);color:#fff;border-color:var(--indigo);}
+.price-line{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);margin-bottom:8px;}
+.price-line.total{margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);}
+.price-line.total span:first-child{font-size:14px;font-weight:500;color:var(--ink);}
+.price-line.total span:last-child{font-size:17px;font-weight:600;color:var(--indigo);}
+.pay-opts{display:flex;gap:10px;}
+.pay-opt{flex:1;padding:11px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--white);display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.pay-opt.sel{border-color:var(--indigo);background:var(--indigo-wash);}
+.pay-opt .po-icon{font-size:18px;}
+.pay-opt .po-label{font-size:11px;font-weight:500;color:var(--muted);}
+.pay-opt.sel .po-label{color:var(--indigo);}
+.s5-bottom{padding:12px 20px 14px;flex-shrink:0;}
+
+/* ══ SCREEN 5b — PAYMENT DETAIL ══ */
+#s5b{background:var(--white);}
+.inp-group{display:flex;flex-direction:column;gap:6px;}
+.inp-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.inp{padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--indigo-wash);font-size:14px;font-family:inherit;color:var(--ink);outline:none;transition:border-color 0.15s;}
+.inp:focus{border-color:var(--indigo-light);background:var(--white);}
+.inp-row{display:flex;gap:10px;}
+.inp-row .inp-group{flex:1;}
+.pay-summary{background:var(--indigo-wash);border-radius:14px;padding:14px;display:flex;justify-content:space-between;align-items:center;}
+.ps-desc{font-size:13px;color:var(--muted);}
+.ps-price{font-size:16px;font-weight:600;color:var(--indigo);}
+
+/* ══ SCREEN 6 — SHARE ══ */
+#s6{background:var(--white);}
+.s6-top{padding:16px 20px 20px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.s6-check{width:60px;height:60px;border-radius:50%;background:var(--indigo);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;margin-bottom:14px;box-shadow:0 4px 20px rgba(26,47,94,0.3);animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
+.s6-hl{font-family:'DM Serif Display',serif;font-style:italic;font-size:24px;color:var(--ink);margin-bottom:5px;text-align:center;}
+.s6-sl{font-size:12px;color:var(--muted);text-align:center;}
+.s6-card{margin:0 20px;border-radius:20px;background:var(--indigo);padding:22px;position:relative;overflow:hidden;flex-shrink:0;}
+.s6-card-pat{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0.07;}
+.s6-logo{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:16px;position:relative;z-index:2;display:flex;align-items:center;gap:5px;}
+.s6-logo span{font-family:'DM Serif Display',serif;font-style:italic;font-size:15px;color:rgba(255,255,255,0.7);}
+.s6-av{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;position:relative;z-index:2;}
+.s6-q{font-family:'DM Serif Display',serif;font-style:italic;font-size:16px;color:#fff;text-align:center;line-height:1.4;margin-bottom:10px;position:relative;z-index:2;}
+.s6-meta{font-size:11px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.7;position:relative;z-index:2;}
+.s6-cert{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:14px;font-size:10px;color:rgba(255,255,255,0.35);position:relative;z-index:2;}
+.s6-btns{display:flex;gap:10px;padding:16px 20px 0;flex-shrink:0;}
+.s6-btn{flex:1;padding:12px 6px;border-radius:14px;border:1.5px solid var(--border);background:var(--white);display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:var(--muted);font-family:inherit;transition:all 0.15s;}
+.s6-btn:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-wash);}
+.s6-btn .sbi{font-size:20px;}
+.s6-journal{text-align:center;padding:14px 20px 6px;font-size:13px;color:var(--indigo-light);cursor:pointer;flex-shrink:0;}
+
+/* ══ SCREEN 7 — CRAFT INFO ══ */
+#s7{background:var(--white);}
+.s7-hero{height:200px;flex-shrink:0;background:var(--indigo);display:flex;align-items:flex-end;padding:20px;position:relative;overflow:hidden;}
+.s7-hero-bg{position:absolute;inset:0;opacity:0.12;display:flex;align-items:center;justify-content:center;}
+.s7-hero-title{font-family:'DM Serif Display',serif;font-style:italic;font-size:26px;color:#fff;position:relative;z-index:2;line-height:1.2;}
+.s7-sc{padding:20px;}
+.s7-sec{margin-bottom:20px;}
+.s7-sec h3{font-size:14px;font-weight:600;color:var(--indigo);margin-bottom:8px;}
+.s7-sec p{font-size:13px;color:#374151;line-height:1.7;}
+.s7-tl{display:flex;flex-direction:column;gap:12px;}
+.s7-tl-item{display:flex;gap:12px;align-items:flex-start;}
+.s7-tl-y{font-size:12px;font-weight:600;color:var(--indigo);min-width:40px;padding-top:1px;}
+.s7-tl-t{font-size:12px;color:var(--muted);line-height:1.5;}
+.s7-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.s7-tag{font-size:12px;padding:5px 12px;border-radius:20px;background:var(--indigo-pale);color:var(--indigo);}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,47,94,0.95);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;z-index:9999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.below-label{margin-top:1rem;text-align:center;font-size:11px;color:rgba(255,255,255,0.12);}
+</style>
+</head>
+<body>
+
+<div class="top-label">
+  <h1>Indigo Alive</h1>
+  <p>Interactive App Prototype · v3</p>
+</div>
+
+<div class="step-nav">
+  <div class="step-dot active" onclick="goTo(1)" id="dot1">Welcome</div>
+  <div class="step-dot" onclick="goTo(7)" id="dot7">The Craft</div>
+  <div class="step-dot" onclick="goTo(2)" id="dot2">Product</div>
+  <div class="step-dot" onclick="goTo(3)" id="dot3">Pattern</div>
+  <div class="step-dot" onclick="goTo(4)" id="dot4">Artisan</div>
+  <div class="step-dot" onclick="goTo(5)" id="dot5">Book</div>
+  <div class="step-dot" onclick="goTo(6)" id="dot6">Share</div>
+</div>
+
+<div class="phone-frame">
+ <div class="phone-inner">
+
+<!-- ══════════════ S1 WELCOME ══════════════ -->
+<div class="screen active" id="s1">
+  <div class="s1-bg"><div class="s1-c1"></div><div class="s1-c2"></div></div>
+  <div class="sb" style="background:transparent;position:relative;z-index:10;">
+    <span class="sb-time" style="color:#fff">9:41</span>
+    <div class="sb-icons">
+      <svg width="15" height="11" viewBox="0 0 15 11"><rect x="0" y="4" width="2.5" height="7" rx="0.8" fill="white" opacity="0.4"/><rect x="4" y="2.5" width="2.5" height="8.5" rx="0.8" fill="white" opacity="0.6"/><rect x="8" y="0.5" width="2.5" height="10.5" rx="0.8" fill="white" opacity="0.85"/><rect x="12" y="0" width="3" height="11" rx="0.8" fill="white"/></svg>
+      <svg width="20" height="12" viewBox="0 0 20 12"><rect x="0" y="1.5" width="17" height="9" rx="2" fill="none" stroke="white" stroke-width="1.2"/><rect x="17.5" y="3.5" width="2" height="5" rx="1" fill="white" opacity="0.5"/><rect x="1.5" y="3" width="11" height="6" rx="1" fill="white"/></svg>
+    </div>
+  </div>
+  <div class="s1-lang" onclick="cycleLang()">
+    <span class="s1-lo active" id="l-en">EN</span><span class="s1-ls">·</span>
+    <span class="s1-lo" id="l-de">DE</span><span class="s1-ls">·</span>
+    <span class="s1-lo" id="l-zh">中文</span>
+  </div>
+  <div class="s1-body">
+    <div class="s1-pw">
+      <svg width="130" height="130" viewBox="0 0 130 130" fill="none" stroke="white" stroke-width="1">
+        <rect x="8" y="8" width="50" height="50"/><rect x="72" y="8" width="50" height="50"/>
+        <rect x="8" y="72" width="50" height="50"/><rect x="72" y="72" width="50" height="50"/>
+        <line x1="8" y1="8" x2="58" y2="58"/><line x1="58" y1="8" x2="8" y2="58"/>
+        <line x1="72" y1="8" x2="122" y2="58"/><line x1="122" y1="8" x2="72" y2="58"/>
+        <line x1="8" y1="72" x2="58" y2="122"/><line x1="58" y1="72" x2="8" y2="122"/>
+        <line x1="72" y1="72" x2="122" y2="122"/><line x1="122" y1="72" x2="72" y2="122"/>
+      </svg>
+    </div>
+    <div class="s1-wm">Indigo Alive</div>
+    <div class="s1-three">
+      <div class="s1-ti"><strong id="t-create">Create</strong><span id="t-csub">your design</span></div>
+      <div class="s1-ts">·</div>
+      <div class="s1-ti"><strong id="t-dye">Dye</strong><span id="t-dsub">by hand</span></div>
+      <div class="s1-ts">·</div>
+      <div class="s1-ti"><strong id="t-keep">Keep</strong><span id="t-ksub">forever</span></div>
+    </div>
+  </div>
+  <div class="s1-footer">
+    <button class="btn btn-white" onclick="goTo(2)" id="t-book-btn">Book a Workshop →</button>
+    <button class="btn btn-outline" onclick="goTo(7)" id="t-learn-btn">Learn about the craft</button>
+  </div>
+  <div class="hi" style="background:var(--indigo)"><div class="hi-bar" style="background:rgba(255,255,255,0.25)"></div></div>
+</div>
+
+<!-- ══════════════ S2 PRODUCT PICKER ══════════════ -->
+<div class="screen" id="s2" style="background:var(--indigo-wash);">
+  <div class="sb" style="background:var(--indigo-wash);">
+    <span class="sb-time" style="color:var(--ink)">9:41</span>
+    <div class="sb-icons"><svg width="15" height="11" viewBox="0 0 15 11"><rect x="0" y="4" width="2.5" height="7" rx="0.8" fill="#1a2f5e" opacity="0.4"/><rect x="4" y="2.5" width="2.5" height="8.5" rx="0.8" fill="#1a2f5e" opacity="0.6"/><rect x="8" y="0.5" width="2.5" height="10.5" rx="0.8" fill="#1a2f5e" opacity="0.85"/><rect x="12" y="0" width="3" height="11" rx="0.8" fill="#1a2f5e"/></svg></div>
+  </div>
+  <div class="nb" style="background:var(--indigo-wash);">
+    <button class="nb-back" onclick="goTo(1)">←</button>
+    <div class="nb-title" id="t-prod-title">Choose Your Item</div>
+    <div class="nb-space"></div>
+  </div>
+  <div class="scroll">
+    <div class="prod-grid" id="prod-grid"></div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="prod-next">
+    <button class="btn btn-dark" onclick="goTo(3)" id="t-next-pattern">Choose Pattern →</button>
+  </div>
+  <div class="hi" style="background:var(--indigo-wash)"><div class="hi-bar" style="background:rgba(0,0,0,0.12)"></div></div>
+</div>
+
+
+<!-- ══════════════ S3 PATTERN PICKER ══════════════ -->
+<div class="screen" id="s3" style="background:var(--indigo-wash);">
+  <div class="sb" style="background:var(--indigo-wash);">
+    <span class="sb-time" style="color:var(--ink)">9:41</span>
+    <div class="sb-icons"><svg width="15" height="11" viewBox="0 0 15 11"><rect x="0" y="4" width="2.5" height="7" rx="0.8" fill="#1a2f5e" opacity="0.4"/><rect x="4" y="2.5" width="2.5" height="8.5" rx="0.8" fill="#1a2f5e" opacity="0.6"/><rect x="8" y="0.5" width="2.5" height="10.5" rx="0.8" fill="#1a2f5e" opacity="0.85"/><rect x="12" y="0" width="3" height="11" rx="0.8" fill="#1a2f5e"/></svg></div>
+  </div>
+  <div class="nb" style="background:var(--indigo-wash);">
+    <button class="nb-back" onclick="goTo(2)">←</button>
+    <div class="nb-title" id="t-pat-title">Choose Your Pattern</div>
+    <div class="nb-space"></div>
+  </div>
+  <div class="s3-preview">
+    <div class="s3-product-preview" id="product-preview"></div>
+    <div class="s3-bottom-label">
+      <h4 id="pat-name">Itajime — Geometric Clamp</h4>
+      <span class="badge badge-easy" id="pat-badge">Beginner</span>
+    </div>
+  </div>
+  <div class="s3-thumbs-wrap">
+    <div class="s3-thumbs" id="pat-thumbs"></div>
+  </div>
+  <div class="s3-sliders">
+    <div class="sl-row">
+      <div class="sl-hd"><span id="t-size-lbl">Pattern Size</span><span id="size-val">Medium</span></div>
+      <div class="sl-track" id="sl-size"><div class="sl-fill" id="sf-size" style="width:55%"></div><div class="sl-handle" id="sh-size" style="left:calc(55% - 10px)"></div></div>
+    </div>
+    <div class="sl-row">
+      <div class="sl-hd"><span id="t-dens-lbl">Density</span><span id="dens-val">3×3</span></div>
+      <div class="sl-track" id="sl-dens"><div class="sl-fill" id="sf-dens" style="width:40%"></div><div class="sl-handle" id="sh-dens" style="left:calc(40% - 10px)"></div></div>
+    </div>
+  </div>
+  <div class="s3-book">
+    <button class="btn btn-dark" onclick="goTo(4)" id="t-book-pat">Book This Pattern →</button>
+  </div>
+  <div class="hi" style="background:var(--indigo-wash)"><div class="hi-bar" style="background:rgba(0,0,0,0.12)"></div></div>
+</div>
+
+<!-- ══════════════ S4 ARTISAN SELECTION ══════════════ -->
+<div class="screen" id="s4" style="background:var(--indigo-wash);">
+  <div class="sb" style="background:var(--indigo-wash);">
+    <span class="sb-time" style="color:var(--ink)">9:41</span>
+    <div class="sb-icons"><svg width="15" height="11" viewBox="0 0 15 11"><rect x="0" y="4" width="2.5" height="7" rx="0.8" fill="#1a2f5e" opacity="0.4"/><rect x="4" y="2.5" width="2.5" height="8.5" rx="0.8" fill="#1a2f5e" opacity="0.6"/><rect x="8" y="0.5" width="2.5" height="10.5" rx="0.8" fill="#1a2f5e" opacity="0.85"/><rect x="12" y="0" width="3" height="11" rx="0.8" fill="#1a2f5e"/></svg></div>
+  </div>
+  <div class="nb" style="background:var(--indigo-wash);">
+    <button class="nb-back" onclick="goTo(3)">←</button>
+    <div class="nb-title" id="t-art-title">Choose Your Artisan</div>
+    <div class="nb-space"></div>
+  </div>
+  <div class="scroll">
+    <div class="artisan-list" id="artisan-list"></div>
+    <div class="dates-section">
+      <div class="sec-label" id="t-dates-lbl">Available Dates & Times</div>
+      <div class="dates-scroll" id="dates-wrap"></div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="s4-sticky">
+    <button class="btn btn-dark" onclick="goTo(5)" id="t-book-art">Book This Artisan →</button>
+  </div>
+  <div class="hi" style="background:var(--indigo-wash)"><div class="hi-bar" style="background:rgba(0,0,0,0.12)"></div></div>
+</div>
+
+<!-- ══════════════ S5 BOOKING ══════════════ -->
+<div class="screen" id="s5" style="background:var(--indigo-wash);">
+  <div class="sb" style="background:var(--indigo-wash);">
+    <span class="sb-time" style="color:var(--ink)">9:41</span>
+    <div class="sb-icons"><svg width="15" height="11" viewBox="0 0 15 11"><rect x="0" y="4" width="2.5" height="7" rx="0.8" fill="#1a2f5e" opacity="0.4"/><rect x="4" y="2.5" width="2.5" height="8.5" rx="0.8" fill="#1a2f5e" opacity="0.6"/><rect x="8" y="0.5" width="2.5" height="10.5" rx="0.8" fill="#1a2f5e" opacity="0.85"/><rect x="12" y="0" width="3" height="11" rx="0.8" fill="#1a2f5e"/></svg></div>
+  </div>
+  <div class="nb" style="background:var(--indigo-wash);">
+    <button class="nb-back" onclick="goTo(4)">←</button>
+    <div class="nb-title" id="t-confirm-title">Confirm Booking</div>
+    <div class="nb-space"></div>
+  </div>
+  <div class="s5-prog">
+    <div class="s5-pd done"></div><div class="s5-pd done"></div><div class="s5-pd"></div>
+  </div>
+  <div class="scroll">
+    <div class="s5-content">
+      <div class="card">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div class="summary-thumb" id="s5-thumb">🧵</div>
+          <div class="s5-info">
+            <h4 id="s5-item-name">Itajime Workshop</h4>
+            <p id="s5-detail">With Master Chen Wei · Mon 26 May · 14:00<br>Sanxia Old Street Workshop</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-label" id="t-part-lbl">Participants</div>
+        <div class="counter">
+          <button class="cnt-btn" onclick="changeCount(-1)">−</button>
+          <span class="cnt-val" id="cnt-val">1 person</span>
+          <button class="cnt-btn" onclick="changeCount(1)">+</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-label" id="t-lang-lbl">Workshop Language</div>
+        <div class="lang-row">
+          <button class="lang-btn sel" onclick="selLang(this,'en')">EN</button>
+          <button class="lang-btn" onclick="selLang(this,'de')">DE</button>
+          <button class="lang-btn" onclick="selLang(this,'zh')">中文</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-label" id="t-price-lbl">Price</div>
+        <div class="price-line"><span id="t-item-price">Item</span><span id="price-item">NT$600</span></div>
+        <div class="price-line"><span id="t-workshop-fee">Workshop fee</span><span id="price-wfee">NT$200</span></div>
+        <div class="price-line"><span id="t-bfee">Booking fee</span><span>NT$40</span></div>
+        <div class="price-line total"><span id="t-total">Total</span><span id="price-total">NT$840</span></div>
+      </div>
+      <div class="card">
+        <div class="sec-label" id="t-pay-lbl">Payment Method</div>
+        <div class="pay-opts">
+          <button class="pay-opt sel" onclick="selPay(this,'visa')"><span class="po-icon">💳</span><span class="po-label" id="t-visa">Visa / MC</span></button>
+          <button class="pay-opt" onclick="selPay(this,'paypal')"><span class="po-icon">🅿️</span><span class="po-label" id="t-pp">PayPal</span></button>
+          <button class="pay-opt" onclick="selPay(this,'cash')"><span class="po-icon">💵</span><span class="po-label" id="t-cash">Cash</span></button>
+        </div>
+      </div>
+      <div style="padding-bottom:8px"></div>
+    </div>
+  </div>
+  <div class="s5-bottom">
+    <button class="btn btn-dark" onclick="goToPayment()" id="pay-btn">Pay NT$840 Now →</button>
+  </div>
+  <div class="hi" style="background:var(--indigo-wash)"><div class="hi-bar" style="background:rgba(0,0,0,0.12)"></div></div>
+</div>
+
+<!-- ══════════════ S5b PAYMENT DETAIL ══════════════ -->
+<div class="screen" id="s5b">
+  <div class="sb" style="background:#fff"><span class="sb-time" style="color:var(--ink)">9:41</span></div>
+  <div class="nb" style="background:#fff;border-bottom:0.5px solid var(--border);">
+    <button class="nb-back" onclick="goTo(5)">←</button>
+    <div class="nb-title" id="s5b-title">Payment Details</div>
+    <div class="nb-space"></div>
+  </div>
+  <div class="scroll">
+    <div style="padding:16px 20px;display:flex;flex-direction:column;gap:14px;">
+      <div class="pay-summary">
+        <div class="ps-desc" id="s5b-desc">Itajime Workshop</div>
+        <div class="ps-price" id="s5b-price">NT$840</div>
+      </div>
+      <div id="card-fields" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="inp-group"><div class="inp-label">Cardholder Name</div><input class="inp" type="text" placeholder="Your name"></div>
+        <div class="inp-group"><div class="inp-label">Card Number</div><input class="inp" type="text" placeholder="0000 0000 0000 0000"></div>
+        <div class="inp-row">
+          <div class="inp-group"><div class="inp-label">Expiry</div><input class="inp" type="text" placeholder="MM / YY"></div>
+          <div class="inp-group"><div class="inp-label">CVC</div><input class="inp" type="text" placeholder="•••"></div>
+        </div>
+      </div>
+      <div id="paypal-fields" style="display:none;flex-direction:column;gap:10px;">
+        <div class="inp-group"><div class="inp-label">PayPal Email</div><input class="inp" type="email" placeholder="you@example.com"></div>
+        <p style="font-size:12px;color:var(--muted)">You will be redirected to PayPal to complete payment securely.</p>
+      </div>
+      <div id="cash-fields" style="display:none;">
+        <div style="background:var(--indigo-wash);border-radius:12px;padding:14px;">
+          <p style="font-size:13px;color:var(--indigo);font-weight:500;margin-bottom:6px">Cash at the workshop</p>
+          <p style="font-size:12px;color:var(--muted);line-height:1.6">Your booking is confirmed. Please bring the full amount in New Taiwan Dollar on the day.</p>
+        </div>
+      </div>
+      <div class="inp-group"><div class="inp-label">Email for confirmation</div><input class="inp" type="email" placeholder="your@email.com"></div>
+      <div style="padding-bottom:8px"></div>
+    </div>
+  </div>
+  <div style="padding:14px 20px 14px;flex-shrink:0;">
+    <button class="btn btn-dark" onclick="goTo(6)" id="confirm-btn">Confirm & Book →</button>
+  </div>
+  <div class="hi"><div class="hi-bar" style="background:rgba(0,0,0,0.1)"></div></div>
+</div>
+
+<!-- ══════════════ S6 SHARE ══════════════ -->
+<div class="screen" id="s6">
+  <div class="sb" style="background:#fff"><span class="sb-time" style="color:var(--ink)">9:41</span></div>
+  <div class="s6-top">
+    <div class="s6-check">✓</div>
+    <div class="s6-hl" id="t-s6-hl">Your piece is ready.</div>
+    <div class="s6-sl" id="t-s6-sl">Your digital certificate has been signed.</div>
+  </div>
+  <div class="s6-card">
+    <div class="s6-card-pat">
+      <svg width="340" height="220" viewBox="0 0 340 220" fill="none" stroke="white" stroke-width="1.5">
+        <rect x="10" y="10" width="60" height="60"/><rect x="90" y="10" width="60" height="60"/><rect x="170" y="10" width="60" height="60"/>
+        <line x1="10" y1="10" x2="70" y2="70"/><line x1="70" y1="10" x2="10" y2="70"/>
+        <line x1="90" y1="10" x2="150" y2="70"/><line x1="150" y1="10" x2="90" y2="70"/>
+      </svg>
+    </div>
+    <div class="s6-logo">🌿 <span>Indigo Alive</span></div>
+    <div class="s6-av" id="s6-av">🧵</div>
+    <div class="s6-q" id="t-s6-q">"I made this at Sanxia Indigo Workshop"</div>
+    <div class="s6-meta" id="s6-meta">Itajime technique · With Master Chen Wei<br>Sanxia, Taiwan · 26 May 2026</div>
+    <div class="s6-cert">🌿 Authenticity certified by Sanxia Culture Association</div>
+  </div>
+  <div class="s6-btns">
+    <button class="s6-btn" onclick="shareAct('save')"><span class="sbi">🖼</span>Save</button>
+    <button class="s6-btn" onclick="shareAct('instagram')"><span class="sbi">📸</span>Instagram</button>
+    <button class="s6-btn" onclick="shareAct('tiktok')"><span class="sbi">🎵</span>TikTok</button>
+    <button class="s6-btn" onclick="shareAct('copy')"><span class="sbi">🔗</span>Copy</button>
+  </div>
+  <div class="s6-journal" onclick="goTo(1)">↩ Back to home</div>
+  <div class="hi"><div class="hi-bar" style="background:rgba(0,0,0,0.1)"></div></div>
+</div>
+
+<!-- ══════════════ S7 CRAFT INFO ══════════════ -->
+<div class="screen" id="s7">
+  <div class="sb" style="background:var(--indigo);padding-top:52px;">
+    <span class="sb-time" style="color:#fff">9:41</span>
+    <div class="sb-icons"><svg width="15" height="11" viewBox="0 0 15 11"><rect x="0" y="4" width="2.5" height="7" rx="0.8" fill="white" opacity="0.85"/></svg></div>
+  </div>
+  <div class="nb" style="background:var(--indigo);">
+    <button class="nb-back" onclick="goTo(1)" style="background:rgba(255,255,255,0.12);color:#fff;">←</button>
+    <div class="nb-title" style="color:#fff">The Craft</div>
+    <div class="nb-space"></div>
+  </div>
+  <div class="scroll">
+    <div class="s7-hero">
+      <div class="s7-hero-bg"><svg width="320" height="200" viewBox="0 0 320 200" fill="none" stroke="white" stroke-width="1"><rect x="20" y="20" width="60" height="60"/><rect x="100" y="20" width="60" height="60"/><line x1="20" y1="20" x2="80" y2="80"/><line x1="80" y1="20" x2="20" y2="80"/></svg></div>
+      <div class="s7-hero-title">Indigo Dyeing<br>in Sanxia</div>
+    </div>
+    <div class="s7-sc">
+      <div class="s7-sec"><h3>What is Indigo Dyeing?</h3><p>Shibori is a Japanese word for several methods of dyeing cloth with a pattern. Fabric is folded, twisted, pleated or bound — then dipped in natural indigo dye. Only the unbound areas absorb the color, creating unique patterns.</p></div>
+      <div class="s7-sec"><h3>History of Sanxia</h3>
+        <div class="s7-tl">
+          <div class="s7-tl-item"><div class="s7-tl-y">1820s</div><div class="s7-tl-t">Immigrants from Anxi bring indigo plants to Sanxia. The Old Street becomes a dyeing hub.</div></div>
+          <div class="s7-tl-item"><div class="s7-tl-y">1896</div><div class="s7-tl-t">Industrial chemical dyes from Germany devastate the traditional craft. Most workshops close.</div></div>
+          <div class="s7-tl-item"><div class="s7-tl-y">1996</div><div class="s7-tl-t">San Chiao Yung Culture Association founded. Community revival begins.</div></div>
+          <div class="s7-tl-item"><div class="s7-tl-y">2024</div><div class="s7-tl-t">Sanxia artisans exhibit at Paris MAISON & OBJET. Global recognition begins.</div></div>
+        </div>
+      </div>
+      <div class="s7-sec"><h3>The 5 Shibori Techniques</h3>
+        <div class="s7-tags">
+          <span class="s7-tag">Itajime</span><span class="s7-tag">Kumo</span><span class="s7-tag">Arashi</span><span class="s7-tag">Miura</span><span class="s7-tag">Nui</span>
+        </div>
+      </div>
+      <div class="s7-sec"><h3>Eco & Sustainability</h3><p>Natural indigo dyeing is 100% biodegradable. The Sanxia workshop uses under-forest grown indigo plants as part of a certified sustainable ecosystem.</p></div>
+      <div style="padding-bottom:16px;"><button class="btn btn-dark" onclick="goTo(2)">Book a Workshop →</button></div>
+    </div>
+  </div>
+  <div class="hi" style="background:#fff"><div class="hi-bar" style="background:rgba(0,0,0,0.12)"></div></div>
+</div>
+
+ </div>
+</div>
+
+<div class="below-label"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════
+// PRODUCTS
+// ═══════════════════════════════
+const PRODUCTS = [
+  { id:'fabric', emoji:'🧣', name:'Fabric Square', name_de:'Stoffquadrat', name_zh:'布料方巾',
+    price:600, workshopFee:200,
+    desc:'The classic. A pure indigo piece you can frame, wear or display.',
+    desc_de:'Das Klassische. Ein reines Indigostück zum Rahmen oder Tragen.',
+    desc_zh:'經典款。純粹的藍染布料，可裝飾或穿戴。',
+    svgPath:'M 30 20 L 170 20 L 170 160 L 30 160 Z' },
+  { id:'tshirt', emoji:'👕', name:'T-Shirt', name_de:'T-Shirt', name_zh:'T恤',
+    price:1100, workshopFee:200,
+    desc:'Premium organic cotton. Your shibori pattern, front and back.',
+    desc_de:'Premium Bio-Baumwolle. Dein Shibori-Muster, vorne und hinten.',
+    desc_zh:'高級有機棉。你的紮染圖案印在前後。',
+    svgPath:'M 60 15 L 30 45 L 10 75 L 35 68 L 35 175 L 165 175 L 165 68 L 190 75 L 170 45 L 140 15 Q 100 35 60 15 Z' },
+  { id:'totebag', emoji:'👜', name:'Tote Bag', name_de:'Tragetasche', name_zh:'環保袋',
+    price:900, workshopFee:200,
+    desc:'Sturdy canvas tote. Everyday carry with a story behind every fold.',
+    desc_de:'Robuste Canvas-Tasche. Alltäglich tragbar mit einer Geschichte.',
+    desc_zh:'堅固帆布包。每一個折痕背後都有故事。',
+    svgPath:'M 45 55 L 40 175 L 160 175 L 155 55 Z M 65 55 Q 65 20 100 20 Q 135 20 135 55' },
+  { id:'cap', emoji:'🧢', name:'Cap', name_de:'Kappe', name_zh:'棒球帽',
+    price:800, workshopFee:200,
+    desc:'Structured cap with your chosen pattern dyed into the front panel.',
+    desc_de:'Strukturierte Kappe mit deinem Muster auf der Vorderseite.',
+    desc_zh:'前片染有你選擇圖案的棒球帽。',
+    svgPath:'M 20 90 Q 20 50 100 40 Q 180 50 180 90 L 175 140 Q 100 155 25 140 Z M 10 140 Q 60 160 100 155 M 10 140 L 0 160' },
+  { id:'hoodie', emoji:'🧥', name:'Hoodie', name_de:'Hoodie', name_zh:'帽T',
+    price:1400, workshopFee:200,
+    desc:'Full-back indigo dye on a premium fleece hoodie. Bold and unique.',
+    desc_de:'Vollflächiger Indigodruck auf einem Premium-Fleece-Hoodie.',
+    desc_zh:'高級刷毛連帽衫，背面全版藍染。大膽而獨特。',
+    svgPath:'M 55 10 L 20 45 L 5 80 L 30 72 L 28 180 L 172 180 L 170 72 L 195 80 L 180 45 L 145 10 Q 125 18 115 30 Q 105 40 100 38 Q 95 40 85 30 Q 75 18 55 10 Z' },
+];
+
+let selectedProduct = 0;
+let paxCount = 1;
+let payMethod = 'visa';
+let currentPat = 0;
+let sizeVal = 0.55;
+let densityVal = 0.40;
+
+// ═══════════════════════════════
+// ARTISANS
+// ═══════════════════════════════
+const ARTISANS = [
+  { id:0, emoji:'🧵', name:'Master Chen Wei', age:67, exp:'30+', role:'Sanxia Old Street Workshop',
+    specs:['Itajime','Kumo','Arashi'], sessions:'72 workshops', rating:'4.9',
+    story:'Learning from his father since 1989, Chen Wei has dedicated his life to preserving traditional Sanxia indigo dyeing. His Itajime work is renowned across Taiwan.',
+    dates:[['Mon','26','14:00'],['Tue','27','10:00'],['Thu','29','14:00'],['Fri','30','11:00']] },
+  { id:1, emoji:'🎨', name:'Master Lin Hui-Ling', age:52, exp:'20+', role:'Sanxia Culture Association',
+    specs:['Nui','Miura','Kumo'], sessions:'48 workshops', rating:'4.8',
+    story:'Lin Hui-Ling trained in textile design in Japan before returning to Sanxia. She specialises in intricate Nui stitching and fine Miura dot patterns.',
+    dates:[['Mon','26','10:00'],['Wed','28','14:00'],['Wed','28','16:00'],['Sat','31','10:00']] },
+  { id:2, emoji:'🌿', name:'Master Wang Jia-Cheng', age:74, exp:'40+', role:'Founder, Sanxia Indigo House',
+    specs:['All techniques','Arashi','Itajime'], sessions:'120+ workshops', rating:'5.0',
+    story:'Wang Jia-Cheng founded the Sanxia Indigo House in 1998 to revive the dying craft. At 74, he is the most senior master in the region — and still dyeing every day.',
+    dates:[['Tue','27','14:00'],['Thu','29','10:00'],['Thu','29','16:00']] },
+];
+
+let selectedArtisan = 0;
+
+function buildProducts() {
+  const grid = document.getElementById('prod-grid');
+  grid.innerHTML = '';
+  PRODUCTS.forEach((p, i) => {
+    const c = document.createElement('div');
+    c.className = 'prod-card' + (i===0?' sel':'');
+    c.onclick = () => selectProduct(i);
+    c.innerHTML = `
+      <div class="prod-svg-wrap">
+        <svg width="90" height="90" viewBox="0 0 200 200" fill="none">
+          <defs><clipPath id="pc${i}"><path d="${p.svgPath}"/></clipPath></defs>
+          <rect width="200" height="200" fill="#1a2f5e" clip-path="url(#pc${i})"/>
+          <g clip-path="url(#pc${i})" opacity="0.5">${miniPattern()}</g>
+          <path d="${p.svgPath}" fill="none" stroke="rgba(26,47,94,0.3)" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="prod-name" id="pn-${i}">${p.name}</div>
+      <div class="prod-price">NT$${p.price + p.workshopFee + 40}</div>
+      <div class="prod-desc">${p.desc.substring(0,52)}…</div>`;
+    grid.appendChild(c);
+  });
+}
+
+function miniPattern() {
+  let s = '';
+  for(let x=0;x<200;x+=25) for(let y=0;y<200;y+=25) {
+    s += `<rect x="${x+2}" y="${y+2}" width="21" height="21" stroke="white" stroke-width="0.7" fill="none"/>`;
+    s += `<line x1="${x+2}" y1="${y+2}" x2="${x+23}" y2="${y+23}" stroke="white" stroke-width="0.4" opacity="0.7"/>`;
+    s += `<line x1="${x+23}" y1="${y+2}" x2="${x+2}" y2="${y+23}" stroke="white" stroke-width="0.4" opacity="0.7"/>`;
+  }
+  return s;
+}
+
+function selectProduct(i) {
+  selectedProduct = i;
+  document.querySelectorAll('.prod-card').forEach((c,j) => c.classList.toggle('sel', j===i));
+  updatePrices();
+  renderProductPreview();
+}
+
+// ═══════════════════════════════
+// PATTERN SVGs
+// ═══════════════════════════════
+const PAT_KEYS = ['itajime','kumo','arashi','miura','nui'];
+const PATTERNS = [
+  { name:'Itajime — Geometric', diff:'Beginner', cls:'badge-easy', label:'Itajime',
+    thumb:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="white" stroke-width="1"><rect x="2" y="2" width="14" height="14"/><rect x="20" y="2" width="14" height="14"/><rect x="2" y="20" width="14" height="14"/><rect x="20" y="20" width="14" height="14"/><line x1="2" y1="2" x2="16" y2="16"/><line x1="16" y1="2" x2="2" y2="16"/></svg>` },
+  { name:'Kumo — Spider Web', diff:'Intermediate', cls:'badge-med', label:'Kumo',
+    thumb:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="white" stroke-width="1"><circle cx="18" cy="18" r="14"/><circle cx="18" cy="18" r="8"/><circle cx="18" cy="18" r="3"/><line x1="18" y1="4" x2="18" y2="32"/><line x1="4" y1="18" x2="32" y2="18"/><line x1="8" y1="8" x2="28" y2="28"/><line x1="28" y1="8" x2="8" y2="28"/></svg>` },
+  { name:'Arashi — Storm', diff:'Intermediate', cls:'badge-med', label:'Arashi',
+    thumb:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="white" stroke-width="2.5"><line x1="0" y1="6" x2="36" y2="24"/><line x1="0" y1="14" x2="36" y2="32"/><line x1="0" y1="0" x2="36" y2="18"/></svg>` },
+  { name:'Miura — Dot Field', diff:'Beginner', cls:'badge-easy', label:'Miura',
+    thumb:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="white" stroke-width="1.2"><circle cx="8" cy="8" r="3"/><circle cx="20" cy="6" r="2.5"/><circle cx="30" cy="10" r="3.5"/><circle cx="6" cy="20" r="2.5"/><circle cx="18" cy="22" r="4"/><circle cx="30" cy="20" r="2.5"/><circle cx="10" cy="30" r="3"/><circle cx="24" cy="30" r="3.5"/></svg>` },
+  { name:'Nui — Stitch Lines', diff:'Advanced', cls:'badge-hard', label:'Nui',
+    thumb:`<svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="white" stroke-width="1.5"><path d="M2 8 Q10 2 18 8 Q26 14 34 8"/><path d="M2 18 Q10 12 18 18 Q26 24 34 18"/><path d="M2 28 Q10 22 18 28 Q26 34 34 28"/></svg>` },
+];
+
+const SVGS = {
+  itajime:(s,d)=>{const st=Math.max(18,65-s*28);const l=[];for(let x=0;x<300;x+=st*1.1)for(let y=0;y<200;y+=st*1.1){l.push(`<rect x="${x+2}" y="${y+2}" width="${st-4}" height="${st-4}" stroke="white" stroke-width="1" fill="none"/>`);l.push(`<line x1="${x+2}" y1="${y+2}" x2="${x+st-4}" y2="${y+st-4}" stroke="white" stroke-width="0.7" opacity="0.7"/>`);l.push(`<line x1="${x+st-4}" y1="${y+2}" x2="${x+2}" y2="${y+st-4}" stroke="white" stroke-width="0.7" opacity="0.7"/>`);}return`<svg width="300" height="200" viewBox="0 0 300 200" fill="none" opacity="0.9">${l.join('')}</svg>`;},
+  kumo:(s,d)=>{const items=[];const num=Math.max(1,Math.round(d*4));const rs=[58-s*14,40-s*9,22-s*5,9];for(let i=0;i<num;i++)for(let j=0;j<num;j++){const cx=50+(i*(200/num)),cy=38+(j*(124/num));rs.forEach((r,ri)=>{items.push(`<circle cx="${cx}" cy="${cy}" r="${r}" stroke="white" stroke-width="${ri===3?1:0.8}" fill="none" opacity="${0.5+ri*0.12}"/>`);});items.push(`<line x1="${cx}" y1="${cy-58+s*14}" x2="${cx}" y2="${cy+58-s*14}" stroke="white" stroke-width="0.6" opacity="0.5"/>`);items.push(`<line x1="${cx-58+s*14}" y1="${cy}" x2="${cx+58-s*14}" y2="${cy}" stroke="white" stroke-width="0.6" opacity="0.5"/>`);}return`<svg width="300" height="200" viewBox="0 0 300 200" fill="none">${items.join('')}</svg>`;},
+  arashi:(s,d)=>{const lines=[];const gap=Math.max(8,26-s*9);const angle=0.44+s*0.14;for(let i=-10;i<20;i++){const y0=i*gap;lines.push(`<line x1="0" y1="${y0}" x2="300" y2="${y0+300*angle}" stroke="white" stroke-width="${2+s}" opacity="0.7"/>`);}return`<svg width="300" height="200" viewBox="0 0 300 200" fill="none">${lines.join('')}</svg>`;},
+  miura:(s,d)=>{const dots=[];const num=Math.round(3+d*8);const r=Math.max(4,13-s*5);for(let i=0;i<num;i++)for(let j=0;j<Math.round(num*0.7);j++){const x=18+(i/num)*264+(j%2===0?0:10);const y=18+(j/(num*0.7))*164;dots.push(`<circle cx="${x}" cy="${y}" r="${r}" stroke="white" stroke-width="1.2" fill="none" opacity="0.85"/>`);}return`<svg width="300" height="200" viewBox="0 0 300 200" fill="none">${dots.join('')}</svg>`;},
+  nui:(s,d)=>{const paths=[];const rows=Math.round(2+d*5);const amp=10+s*18;for(let i=0;i<rows;i++){const y=20+(i/rows)*160;paths.push(`<path d="M0 ${y} Q75 ${y-amp} 150 ${y} Q225 ${y+amp} 300 ${y}" stroke="white" stroke-width="${1.5+s*0.5}" fill="none" opacity="0.85"/>`);}return`<svg width="300" height="200" viewBox="0 0 300 200" fill="none">${paths.join('')}</svg>`;}
+};
+
+function renderProductPreview() {
+  const prod = PRODUCTS[selectedProduct];
+  const patKey = PAT_KEYS[currentPat];
+  const patSvg = SVGS[patKey](sizeVal, densityVal);
+  // Scale path to fit in 300x200 viewport
+  const svgContent = `
+    <svg width="300" height="200" viewBox="0 0 300 200" fill="none">
+      <defs>
+        <clipPath id="prod-clip">
+          <path transform="scale(1.5) translate(-0,0)" d="${prod.svgPath}"/>
+        </clipPath>
+      </defs>
+      <rect width="300" height="200" fill="#1a2f5e" clip-path="url(#prod-clip)"/>
+      <g clip-path="url(#prod-clip)" opacity="0.9">
+        ${SVGS[patKey](sizeVal, densityVal).replace('<svg width="300" height="200" viewBox="0 0 300 200" fill="none">','').replace('</svg>','')}
+      </g>
+      <path transform="scale(1.5) translate(-0,0)" d="${prod.svgPath}" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+    </svg>`;
+  document.getElementById('product-preview').innerHTML = svgContent;
+}
+
+function buildPatternThumbs() {
+  const wrap = document.getElementById('pat-thumbs');
+  wrap.innerHTML = '';
+  PATTERNS.forEach((p,i)=>{
+    const item = document.createElement('div');
+    item.className = 's3-ti';
+    item.innerHTML = `<div class="s3-thumb${i===0?' sel':''}" onclick="selectPat(${i},this)">${p.thumb}</div><span class="s3-tn">${p.label}</span>`;
+    wrap.appendChild(item);
+  });
+}
+
+function selectPat(i, el) {
+  currentPat = i;
+  document.querySelectorAll('.s3-thumb').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+  const p = PATTERNS[i];
+  document.getElementById('pat-name').textContent = p.name;
+  const badge = document.getElementById('pat-badge');
+  badge.textContent = p.diff; badge.className = 'badge ' + p.cls;
+  renderProductPreview();
+}
+
+function setupSliders() {
+  function setup(trackId,fillId,handleId,onCh){
+    const track=document.getElementById(trackId);
+    const fill=document.getElementById(fillId);
+    const handle=document.getElementById(handleId);
+    let drag=false;
+    function upd(e){
+      const rect=track.getBoundingClientRect();
+      const cx=e.touches?e.touches[0].clientX:e.clientX;
+      let pct=(cx-rect.left)/rect.width;
+      pct=Math.min(1,Math.max(0,pct));
+      fill.style.width=(pct*100)+'%';
+      handle.style.left='calc('+(pct*100)+'% - 10px)';
+      onCh(pct);
+    }
+    track.addEventListener('mousedown',e=>{drag=true;upd(e);});
+    track.addEventListener('touchstart',e=>{drag=true;upd(e);},{passive:true});
+    document.addEventListener('mousemove',e=>{if(drag)upd(e);});
+    document.addEventListener('touchmove',e=>{if(drag)upd(e);},{passive:true});
+    document.addEventListener('mouseup',()=>{drag=false;});
+    document.addEventListener('touchend',()=>{drag=false;});
+  }
+  const SZ=['XS','Small','Medium','Large','XL'];
+  const DN=['1×1','2×2','3×3','4×4','5×5'];
+  setup('sl-size','sf-size','sh-size',pct=>{
+    sizeVal=pct;
+    document.getElementById('size-val').textContent=SZ[Math.min(4,Math.floor(pct*5))];
+    renderProductPreview();
+  });
+  setup('sl-dens','sf-dens','sh-dens',pct=>{
+    densityVal=pct;
+    document.getElementById('dens-val').textContent=DN[Math.min(4,Math.floor(pct*5))];
+    renderProductPreview();
+  });
+}
+
+// ═══════════════════════════════
+// ARTISANS
+// ═══════════════════════════════
+function buildArtisans() {
+  const list = document.getElementById('artisan-list');
+  list.innerHTML = '';
+  ARTISANS.forEach((a,i)=>{
+    const c = document.createElement('div');
+    c.className = 'artisan-card' + (i===0?' sel':'');
+    c.onclick = ()=>selectArtisan(i);
+    c.innerHTML = `
+      <div class="artisan-avatar" style="background:${['rgba(26,47,94,0.12)','rgba(29,158,117,0.1)','rgba(201,168,76,0.1)'][i]}">${a.emoji}</div>
+      <div class="artisan-info">
+        <div class="artisan-name">${a.name}</div>
+        <div class="artisan-role">${a.age} years old · ${a.exp} years experience</div>
+        <div class="artisan-pills">${a.specs.map(s=>`<span class="artisan-pill">${s}</span>`).join('')}</div>
+        <div class="artisan-bottom">
+          <span class="artisan-sessions">${a.sessions}</span>
+          <span class="artisan-rating">★ ${a.rating}</span>
+        </div>
+      </div>`;
+    list.appendChild(c);
+  });
+  buildDates();
+}
+
+function selectArtisan(i) {
+  selectedArtisan = i;
+  document.querySelectorAll('.artisan-card').forEach((c,j)=>c.classList.toggle('sel',j===i));
+  buildDates();
+  updateBookingSummary();
+}
+
+function buildDates() {
+  const wrap = document.getElementById('dates-wrap');
+  const dates = ARTISANS[selectedArtisan].dates;
+  wrap.innerHTML = '';
+  dates.forEach((d,i)=>{
+    const chip = document.createElement('div');
+    chip.className = 'date-chip' + (i===0?' sel':'');
+    chip.innerHTML = `<div class="dc-day">${d[0]}</div><div class="dc-num">${d[1]}</div><div class="dc-time">${d[2]}</div>`;
+    chip.onclick = ()=>{
+      document.querySelectorAll('.date-chip').forEach(c=>c.classList.remove('sel'));
+      chip.classList.add('sel');
+    };
+    wrap.appendChild(chip);
+  });
+}
+
+// ═══════════════════════════════
+// BOOKING
+// ═══════════════════════════════
+const WFEE = 200;
+const BFEE = 40;
+
+function updatePrices() {
+  const prod = PRODUCTS[selectedProduct];
+  const itemTotal = prod.price * paxCount;
+  const wfeeTotal = WFEE * paxCount;
+  const total = itemTotal + wfeeTotal + BFEE;
+  document.getElementById('price-item').textContent = 'NT$' + itemTotal;
+  document.getElementById('price-wfee').textContent = 'NT$' + wfeeTotal;
+  document.getElementById('price-total').textContent = 'NT$' + total;
+  document.getElementById('pay-btn').textContent = 'Pay NT$' + total + ' Now →';
+}
+
+function updateBookingSummary() {
+  const prod = PRODUCTS[selectedProduct];
+  const art = ARTISANS[selectedArtisan];
+  const pat = PATTERNS[currentPat];
+  document.getElementById('s5-thumb').textContent = prod.emoji;
+  document.getElementById('s5-item-name').textContent = `${pat.label} on ${prod.name}`;
+  const dateEl = document.querySelector('.date-chip.sel');
+  const dateStr = dateEl ? dateEl.querySelector('.dc-day').textContent + ' ' + dateEl.querySelector('.dc-num').textContent + ' · ' + dateEl.querySelector('.dc-time').textContent : '26 May · 14:00';
+  document.getElementById('s5-detail').innerHTML = `With ${art.name} · ${dateStr}<br>Sanxia Old Street Workshop`;
+  document.getElementById('s6-av').textContent = prod.emoji;
+  document.getElementById('s6-meta').innerHTML = `${pat.label} technique · With ${art.name}<br>Sanxia, Taiwan · 26 May 2026`;
+  document.getElementById('s5b-desc').textContent = `${pat.label} on ${prod.name}`;
+  document.getElementById('t-item-price').textContent = prod.name;
+  updatePrices();
+}
+
+function changeCount(d) {
+  paxCount = Math.max(1, Math.min(10, paxCount + d));
+  const t = LANGS[currentLang];
+  document.getElementById('cnt-val').textContent = paxCount + ' ' + (paxCount===1?t.person:t.people);
+  updatePrices();
+}
+
+function selPay(btn, method) {
+  payMethod = method;
+  document.querySelectorAll('.pay-opt').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function goToPayment() {
+  const cf = document.getElementById('card-fields');
+  const pf = document.getElementById('paypal-fields');
+  const cashf = document.getElementById('cash-fields');
+  cf.style.display = payMethod==='visa'?'flex':'none'; if(cf.style.display==='flex') cf.style.flexDirection='column', cf.style.gap='14px';
+  pf.style.display = payMethod==='paypal'?'flex':'none'; if(pf.style.display==='flex') pf.style.flexDirection='column', pf.style.gap='10px';
+  cashf.style.display = payMethod==='cash'?'block':'none';
+  const titles={visa:'Card Details',paypal:'PayPal',cash:'Cash Booking'};
+  document.getElementById('s5b-title').textContent = titles[payMethod];
+  const cbtns={visa:'Confirm & Pay →',paypal:'Continue to PayPal →',cash:'Confirm Booking →'};
+  document.getElementById('confirm-btn').textContent = cbtns[payMethod];
+  document.getElementById('s5b-price').textContent = document.getElementById('price-total').textContent;
+  goTo('5b');
+}
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+let current = 1;
+function goTo(n) {
+  document.getElementById('s'+current).classList.remove('active');
+  const prev = document.getElementById('dot'+current);
+  if(prev) prev.classList.remove('active');
+  current = n;
+  const screen = document.getElementById('s'+n);
+  screen.classList.add('active');
+  screen.style.animation='none'; screen.offsetHeight; screen.style.animation='sIn 0.28s ease';
+  const dot = document.getElementById('dot'+n);
+  if(dot) dot.classList.add('active');
+  if(n===5) updateBookingSummary();
+  if(n===3) renderProductPreview();
+}
+
+// ═══════════════════════════════
+// LANGUAGE
+// ═══════════════════════════════
+let currentLang = 'en';
+let langIdx = 0;
+const langKeys = ['en','de','zh'];
+const LANGS = {
+  en:{create:'Create',csub:'your design',dye:'Dye',dsub:'by hand',keep:'Keep',ksub:'forever',
+    bookBtn:'Book a Workshop →',learnBtn:'Learn about the craft',
+    prodTitle:'Choose Your Item',nextPat:'Choose Pattern →',
+    patTitle:'Choose Your Pattern',sizeLbl:'Pattern Size',densLbl:'Density',bookPat:'Book This Pattern →',
+    artTitle:'Choose Your Artisan',datesLbl:'Available Dates & Times',bookArt:'Book This Artisan →',
+    confirmTitle:'Confirm Booking',partLbl:'Participants',langLbl:'Workshop Language',
+    priceLbl:'Price',itemPrice:'Item',wfee:'Workshop fee',bfee:'Booking fee',total:'Total',
+    payLbl:'Payment Method',visa:'Visa / MC',pp:'PayPal',cash:'Cash',
+    person:'person',people:'people',
+    s6hl:'Your piece is ready.',s6sl:'Your digital certificate has been signed.',
+    s6q:'"I made this at Sanxia Indigo Workshop"'},
+  de:{create:'Gestalten',csub:'dein Muster',dye:'Färben',dsub:'von Hand',keep:'Behalten',ksub:'für immer',
+    bookBtn:'Workshop buchen →',learnBtn:'Über das Handwerk',
+    prodTitle:'Wähle deinen Artikel',nextPat:'Muster wählen →',
+    patTitle:'Wähle dein Muster',sizeLbl:'Mustergröße',densLbl:'Dichte',bookPat:'Dieses Muster buchen →',
+    artTitle:'Wähle deinen Meister',datesLbl:'Verfügbare Termine',bookArt:'Diesen Meister buchen →',
+    confirmTitle:'Buchung bestätigen',partLbl:'Teilnehmer',langLbl:'Workshop-Sprache',
+    priceLbl:'Preis',itemPrice:'Artikel',wfee:'Workshop-Gebühr',bfee:'Buchungsgebühr',total:'Gesamt',
+    payLbl:'Zahlungsmethode',visa:'Visa / MC',pp:'PayPal',cash:'Bargeld',
+    person:'Person',people:'Personen',
+    s6hl:'Dein Stück ist fertig.',s6sl:'Dein digitales Zertifikat wurde unterzeichnet.',
+    s6q:'"Ich habe das im Sanxia Indigo Workshop gemacht"'},
+  zh:{create:'設計',csub:'你的花紋',dye:'染色',dsub:'親手製作',keep:'保留',ksub:'永久珍藏',
+    bookBtn:'預訂工作坊 →',learnBtn:'了解藍染工藝',
+    prodTitle:'選擇你的物品',nextPat:'選擇花紋 →',
+    patTitle:'選擇花紋',sizeLbl:'花紋大小',densLbl:'密度',bookPat:'預訂此花紋 →',
+    artTitle:'選擇你的師傅',datesLbl:'可選日期與時間',bookArt:'預訂此師傅 →',
+    confirmTitle:'確認預訂',partLbl:'參加人數',langLbl:'工作坊語言',
+    priceLbl:'價格',itemPrice:'物品費用',wfee:'工作坊費用',bfee:'訂位費',total:'總計',
+    payLbl:'付款方式',visa:'Visa / MC',pp:'PayPal',cash:'現金',
+    person:'人',people:'人',
+    s6hl:'你的作品完成了。',s6sl:'你的數位證書已簽署。',
+    s6q:'"我在三峽藍染工作坊親手製作了這件作品"'},
+};
+
+function cycleLang(){langIdx=(langIdx+1)%3;applyLang(langKeys[langIdx]);}
+function selLang(btn,l){document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');applyLang(l);}
+function applyLang(l){
+  currentLang=l;langIdx=langKeys.indexOf(l);
+  ['en','de','zh'].forEach(k=>document.getElementById('l-'+k)?.classList.remove('active'));
+  ({en:'l-en',de:'l-de',zh:'l-zh'})[l] && document.getElementById(({en:'l-en',de:'l-de',zh:'l-zh'})[l])?.classList.add('active');
+  const t=LANGS[l];
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  const setH=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+  set('t-create',t.create);set('t-csub',t.csub);set('t-dye',t.dye);set('t-dsub',t.dsub);set('t-keep',t.keep);set('t-ksub',t.ksub);
+  set('t-book-btn',t.bookBtn);set('t-learn-btn',t.learnBtn);
+  set('t-prod-title',t.prodTitle);set('t-next-pattern',t.nextPat);
+  set('t-pat-title',t.patTitle);set('t-size-lbl',t.sizeLbl);set('t-dens-lbl',t.densLbl);set('t-book-pat',t.bookPat);
+  set('t-art-title',t.artTitle);set('t-dates-lbl',t.datesLbl);set('t-book-art',t.bookArt);
+  set('t-confirm-title',t.confirmTitle);set('t-part-lbl',t.partLbl);set('t-lang-lbl',t.langLbl);
+  set('t-price-lbl',t.priceLbl);set('t-item-price',t.itemPrice);set('t-workshop-fee',t.wfee);set('t-bfee',t.bfee);set('t-total',t.total);
+  set('t-pay-lbl',t.payLbl);set('t-visa',t.visa);set('t-pp',t.pp);set('t-cash',t.cash);
+  set('t-s6-hl',t.s6hl);set('t-s6-sl',t.s6sl);setH('t-s6-q',t.s6q);
+  const cv=document.getElementById('cnt-val');if(cv)cv.textContent=paxCount+' '+(paxCount===1?t.person:t.people);
+  // Also update product names per language
+  document.querySelectorAll('.prod-name').forEach((el,i)=>{
+    if(l==='de') el.textContent=PRODUCTS[i].name_de;
+    else if(l==='zh') el.textContent=PRODUCTS[i].name_zh;
+    else el.textContent=PRODUCTS[i].name;
+  });
+}
+
+// ═══════════════════════════════
+// SHARE
+// ═══════════════════════════════
+function shareAct(type){
+  const msgs={save:'🖼 Saved to photos!',instagram:'📸 Opening Instagram...',tiktok:'🎵 Opening TikTok...',copy:'🔗 Link copied!'};
+  if(type==='copy') navigator.clipboard?.writeText('https://indigo-alive.app/certificate');
+  showToast(msgs[type]);
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
+buildProducts();
+buildPatternThumbs();
+buildArtisans();
+renderProductPreview();
+setupSliders();
+</script>
+</body>
+</html>
